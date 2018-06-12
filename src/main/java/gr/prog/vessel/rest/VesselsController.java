@@ -1,15 +1,16 @@
 package gr.prog.vessel.rest;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.Timestamp;
 
 @RestController
 @RequestMapping("/rest/vessel")
 public class VesselsController {
 
 	@GetMapping
-	public String hello(){
+	public String hello(@RequestParam Integer port, @RequestParam Timestamp t) {
+		System.out.println(t);
 		return "Hello";
 	}
 
