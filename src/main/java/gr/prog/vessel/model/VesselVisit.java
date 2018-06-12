@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Entity
-public class Vessel extends AbstractModel {
+public class VesselVisit extends AbstractModel {
 	private String name;
 	private Long imo;
 	private Double length;

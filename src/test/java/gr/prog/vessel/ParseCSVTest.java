@@ -17,14 +17,18 @@ import static org.junit.Assert.*;
 
 public class ParseCSVTest {
 
-	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.][SSS][SS][S]");
-	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
+	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss[.S]");
 
 	@Test
 	public void simple() throws ParseException {
-		Date parsedDate = simpleDateFormat.parse("2015-01-04 11:31:39.1");
+		Date parsedDate = simpleDateFormat.parse("2015-01-04 11:31:39.111");
 		Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
 		System.out.println(timestamp);
+
+		Date parsedDate2 = simpleDateFormat.parse("2015-01-04 11:31:39");
+		Timestamp timestamp2 = new java.sql.Timestamp(parsedDate2.getTime());
+		System.out.println(timestamp2);
 	}
 
 	@Test
