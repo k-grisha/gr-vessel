@@ -17,16 +17,22 @@ public interface VisitRepository extends JpaRepository<VesselVisit, Long> {
 	List<VesselVisit> findVisitsByPortIdAtTime(@Param("portId") Integer portId, @Param("timestamp") Timestamp timestamp);
 
 	@Query("SELECT visit FROM VesselVisit visit WHERE " +
-			"visit.portId = :portId AND visit.timeStarted > :fromTime AND visit.timeFinished < :toTime")
-	List<VesselVisit> findVisitsByPortIdInPerriod(@Param("portId") Integer portId,
-												  @Param("fromTime") Timestamp fromTime,
-												  @Param("toTime") Timestamp toTime);
+			"visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeFinished < :toTime")
+	List<VesselVisit> findVisitsByPortIdInPeriod(@Param("portId") Integer portId,
+												 @Param("fromTime") Timestamp fromTime,
+												 @Param("toTime") Timestamp toTime);
 
 	@Query("SELECT visit FROM VesselVisit visit WHERE " +
 			"visit.portId = :portId AND visit.imo = :imo AND " +
-			"visit.timeStarted > :fromTime AND visit.timeFinished < :toTime")
+			"visit.timeStarted >= :fromTime AND visit.timeFinished < :toTime")
 	List<VesselVisit> findVisitsByPortIdImoInPeriod(@Param("portId") Integer portId,
 													@Param("imo") Long imo,
 													@Param("fromTime") Timestamp fromTime,
 													@Param("toTime") Timestamp toTime);
+
+	@Query("SELECT visit FROM VesselVisit visit WHERE " +
+			"visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeStarted < :toTime")
+	List<VesselVisit> findArrivalsByPortIdInPeriod(@Param("portId") Integer portId,
+												   @Param("fromTime") Timestamp fromTime,
+												   @Param("toTime") Timestamp toTime);
 }

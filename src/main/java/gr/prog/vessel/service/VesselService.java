@@ -1,6 +1,7 @@
 package gr.prog.vessel.service;
 
 import gr.prog.vessel.dto.GuestDto;
+import gr.prog.vessel.dto.MonthlyAggregationDto;
 import gr.prog.vessel.dto.PortAggregationDto;
 import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.mapper.VesselVisitMapper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.LongSummaryStatistics;
 import java.util.Map;
@@ -32,7 +34,7 @@ public class VesselService {
 	}
 
 	public PortAggregationDto getPortAggregation(Integer portId, Timestamp fromTime, Timestamp toTime) {
-		List<VesselVisit> visits = visitRepository.findVisitsByPortIdInPerriod(portId, fromTime, toTime);
+		List<VesselVisit> visits = visitRepository.findVisitsByPortIdInPeriod(portId, fromTime, toTime);
 		Long uniqueVessels = visits.stream().filter(distinctByKey(VesselVisit::getImo)).count();
 		LongSummaryStatistics statistics = visits.stream()
 				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
@@ -53,6 +55,19 @@ public class VesselService {
 				timeInPortStatistics.getMax(),
 				new Timestamp(visitStatistics.getMin()),
 				new Timestamp(visitStatistics.getMax()));
+	}
+
+	public MonthlyAggregationDto getMonthAggregation(Integer portId, int year, int month) {
+		Timestamp from = Timestamp.valueOf(LocalDate.of(year, month, 1).atStartOfDay());
+		Timestamp to = Timestamp.valueOf(LocalDate.of(year, month + 1, 1).atStartOfDay());
+		List<VesselVisit> visits = visitRepository.findVisitsByPortIdInPeriod(portId, from, to);
+		Double avgDuration = visits.stream()
+				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
+				.average().orElse(0.0);
+		Double sumOfLength = visits.stream().mapToDouble(VesselVisit::getLength).sum();
+		List<VesselVisit> arrivals = visitRepository.findArrivalsByPortIdInPeriod(portId, from, to);
+		Integer uniqueArrivals = (int) arrivals.stream().filter(distinctByKey(VesselVisit::getImo)).count();
+		return new MonthlyAggregationDto(arrivals.size(), uniqueArrivals, avgDuration, sumOfLength);
 	}
 
 

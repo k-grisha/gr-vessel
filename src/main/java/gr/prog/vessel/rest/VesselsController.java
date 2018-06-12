@@ -1,6 +1,7 @@
 package gr.prog.vessel.rest;
 
 import gr.prog.vessel.dto.GuestDto;
+import gr.prog.vessel.dto.MonthlyAggregationDto;
 import gr.prog.vessel.dto.PortAggregationDto;
 import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.service.VesselService;
@@ -24,9 +25,9 @@ public class VesselsController {
 
 
 	@GetMapping(path = "/{portId}/aggregation")
-	public PortAggregationDto getAggregation(@PathVariable Integer portId,
-											 @RequestParam Timestamp s,
-											 @RequestParam Timestamp e) {
+	public PortAggregationDto getPortAggregation(@PathVariable Integer portId,
+												 @RequestParam Timestamp s,
+												 @RequestParam Timestamp e) {
 		return vesselService.getPortAggregation(portId, s, e);
 	}
 
@@ -36,5 +37,12 @@ public class VesselsController {
 													 @RequestParam Timestamp s,
 													 @RequestParam Timestamp e) {
 		return vesselService.getVesselAggregation(portId, imo, s, e);
+	}
+
+	@GetMapping(path = "/{portId}/monthAggregation")
+	public MonthlyAggregationDto getMonthAggregation(@PathVariable Integer portId,
+													 @RequestParam int y,
+													 @RequestParam int m) {
+		return vesselService.getMonthAggregation(portId, y, m);
 	}
 }
