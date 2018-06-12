@@ -14,5 +14,19 @@ public interface VisitRepository extends JpaRepository<VesselVisit, Long> {
 
 	@Query("SELECT visit FROM VesselVisit visit WHERE " +
 			"visit.portId = :portId AND visit.timeStarted < :timestamp AND visit.timeFinished > :timestamp")
-	List<VesselVisit> findGuestByPortIdAndTime(@Param("portId") Integer portId, @Param("timestamp") Timestamp timestamp);
+	List<VesselVisit> findVisitsByPortIdAtTime(@Param("portId") Integer portId, @Param("timestamp") Timestamp timestamp);
+
+	@Query("SELECT visit FROM VesselVisit visit WHERE " +
+			"visit.portId = :portId AND visit.timeStarted > :fromTime AND visit.timeFinished < :toTime")
+	List<VesselVisit> findVisitsByPortIdInPerriod(@Param("portId") Integer portId,
+												  @Param("fromTime") Timestamp fromTime,
+												  @Param("toTime") Timestamp toTime);
+
+	@Query("SELECT visit FROM VesselVisit visit WHERE " +
+			"visit.portId = :portId AND visit.imo = :imo AND " +
+			"visit.timeStarted > :fromTime AND visit.timeFinished < :toTime")
+	List<VesselVisit> findVisitsByPortIdImoInPerriod(@Param("portId") Integer portId,
+													 @Param("imo") Integer imo,
+													 @Param("fromTime") Timestamp fromTime,
+													 @Param("toTime") Timestamp toTime);
 }
