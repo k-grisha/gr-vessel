@@ -1,7 +1,8 @@
 package gr.prog.vessel.service;
 
 import gr.prog.vessel.dto.GuestDto;
-import gr.prog.vessel.dto.VisitsAggregationDto;
+import gr.prog.vessel.dto.PortAggregationDto;
+import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.mapper.VesselVisitMapper;
 import gr.prog.vessel.model.VesselVisit;
 import gr.prog.vessel.repository.VisitRepository;
@@ -30,14 +31,30 @@ public class VesselService {
 		return visits.stream().map(VesselVisitMapper.INSTANCE::map).collect(Collectors.toList());
 	}
 
-	public VisitsAggregationDto getAggregation(Integer portId, Timestamp fromTime, Timestamp toTime) {
+	public PortAggregationDto getPortAggregation(Integer portId, Timestamp fromTime, Timestamp toTime) {
 		List<VesselVisit> visits = visitRepository.findVisitsByPortIdInPerriod(portId, fromTime, toTime);
 		Long uniqueVessels = visits.stream().filter(distinctByKey(VesselVisit::getImo)).count();
 		LongSummaryStatistics statistics = visits.stream()
 				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
 				.summaryStatistics();
-		return new VisitsAggregationDto(uniqueVessels, statistics.getAverage(), statistics.getMin(), statistics.getMax());
+		return new PortAggregationDto(uniqueVessels, statistics.getAverage(), statistics.getMin(), statistics.getMax());
 	}
+
+	public VesselAggregationDto getVesselAggregation(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
+		List<VesselVisit> visits = visitRepository.findVisitsByPortIdImoInPeriod(portId, imo, fromTime, toTime);
+		LongSummaryStatistics timeInPortStatistics = visits.stream()
+				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
+				.summaryStatistics();
+		LongSummaryStatistics visitStatistics = visits.stream().mapToLong(visit -> visit.getTimeFinished().getTime())
+				.summaryStatistics();
+		return new VesselAggregationDto(visits.size(),
+				timeInPortStatistics.getAverage(),
+				timeInPortStatistics.getMin(),
+				timeInPortStatistics.getMax(),
+				new Timestamp(visitStatistics.getMin()),
+				new Timestamp(visitStatistics.getMax()));
+	}
+
 
 	private <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 		Map<Object, Boolean> seen = new ConcurrentHashMap<>();

@@ -1,7 +1,8 @@
 package gr.prog.vessel.rest;
 
 import gr.prog.vessel.dto.GuestDto;
-import gr.prog.vessel.dto.VisitsAggregationDto;
+import gr.prog.vessel.dto.PortAggregationDto;
+import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.service.VesselService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +24,17 @@ public class VesselsController {
 
 
 	@GetMapping(path = "/{portId}/aggregation")
-	public VisitsAggregationDto getAggregation(@PathVariable Integer portId,
-											   @RequestParam Timestamp s,
-											   @RequestParam Timestamp e) {
-		return vesselService.getAggregation(portId, s, e);
+	public PortAggregationDto getAggregation(@PathVariable Integer portId,
+											 @RequestParam Timestamp s,
+											 @RequestParam Timestamp e) {
+		return vesselService.getPortAggregation(portId, s, e);
 	}
 
+	@GetMapping(path = "/{portId}/vessel/{imo}/aggregation")
+	public VesselAggregationDto getVesselAggregation(@PathVariable Integer portId,
+													 @PathVariable Long imo,
+													 @RequestParam Timestamp s,
+													 @RequestParam Timestamp e) {
+		return vesselService.getVesselAggregation(portId, imo, s, e);
+	}
 }
