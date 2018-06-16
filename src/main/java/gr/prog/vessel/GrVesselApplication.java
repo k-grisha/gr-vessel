@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.BufferedReader;
@@ -26,12 +27,14 @@ public class GrVesselApplication {
 
 
 	@Bean
+	@Profile("!test")
 	public CommandLineRunner initDB(VisitRepository visitRepository) {
 		return (args) -> {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
 			String csvFile = "port_visits.csv";
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream(csvFile);
 			String line;
+			int counter = 0;
 			try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
 				br.readLine();
 				while ((line = br.readLine()) != null) {
@@ -44,10 +47,12 @@ public class GrVesselApplication {
 					vesselVisit.setTimeStarted(Timestamp.valueOf(LocalDateTime.parse(column[4], formatter)));
 					vesselVisit.setTimeFinished(Timestamp.valueOf(LocalDateTime.parse(column[5], formatter)));
 					visitRepository.save(vesselVisit);
+					counter++;
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			System.out.println("==== " + counter + " visits added ====");
 		};
 	}
 }

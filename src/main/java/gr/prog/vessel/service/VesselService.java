@@ -39,7 +39,10 @@ public class VesselService {
 		LongSummaryStatistics statistics = visits.stream()
 				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
 				.summaryStatistics();
-		return new PortAggregationDto(uniqueVessels, statistics.getAverage(), statistics.getMin(), statistics.getMax());
+		return new PortAggregationDto(uniqueVessels,
+				statistics.getAverage() / 1000,
+				statistics.getMin() / 1000,
+				statistics.getMax() / 1000);
 	}
 
 	public VesselAggregationDto getVesselAggregation(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
@@ -50,9 +53,9 @@ public class VesselService {
 		LongSummaryStatistics visitStatistics = visits.stream().mapToLong(visit -> visit.getTimeFinished().getTime())
 				.summaryStatistics();
 		return new VesselAggregationDto(visits.size(),
-				timeInPortStatistics.getAverage(),
-				timeInPortStatistics.getMin(),
-				timeInPortStatistics.getMax(),
+				timeInPortStatistics.getAverage() / 1000,
+				timeInPortStatistics.getMin() / 1000,
+				timeInPortStatistics.getMax() / 1000,
 				new Timestamp(visitStatistics.getMin()),
 				new Timestamp(visitStatistics.getMax()));
 	}
@@ -67,7 +70,7 @@ public class VesselService {
 		Double sumOfLength = visits.stream().mapToDouble(VesselVisit::getLength).sum();
 		List<VesselVisit> arrivals = visitRepository.findArrivalsByPortIdInPeriod(portId, from, to);
 		Integer uniqueArrivals = (int) arrivals.stream().filter(distinctByKey(VesselVisit::getImo)).count();
-		return new MonthlyAggregationDto(arrivals.size(), uniqueArrivals, avgDuration, sumOfLength);
+		return new MonthlyAggregationDto(arrivals.size(), uniqueArrivals, avgDuration / 1000, sumOfLength);
 	}
 
 
