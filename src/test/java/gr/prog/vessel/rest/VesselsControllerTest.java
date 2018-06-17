@@ -6,6 +6,7 @@ import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import gr.prog.vessel.GrVesselApplication;
 import gr.prog.vessel.dto.*;
+import gr.prog.vessel.repository.VisitRepository;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,6 +24,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,6 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class VesselsControllerTest {
 
 	@Autowired
+	private VisitRepository visitRepository;
+	@Autowired
 	private ObjectMapper objectMapper;
 
 	private MockMvc mockMvc;
@@ -50,6 +55,11 @@ public class VesselsControllerTest {
 
 	@Test
 	public void getVisitors_success() throws Exception {
+		Object result = visitRepository.getArrivalStatistic(2,
+				Timestamp.valueOf(LocalDateTime.now().minusMonths(1)),
+				Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
+		System.out.println(result);
+
 		// Port 2
 		String responseJson = mockMvc.perform(get("/rest/port/{portId}/guests", 2)
 				.param("t", "2015-01-02 07:07:00"))
@@ -144,8 +154,8 @@ public class VesselsControllerTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 		MonthlyAggregationDto monthlyAggregationDto = objectMapper.readValue(responseJson, MonthlyAggregationDto.class);
-		Assert.assertEquals(4, (int) monthlyAggregationDto.getTotalArrivals());
-		Assert.assertEquals(4, (int) monthlyAggregationDto.getUniqueVessels());
+		Assert.assertEquals(4L, (long) monthlyAggregationDto.getTotalArrivals());
+		Assert.assertEquals(4L, (long) monthlyAggregationDto.getUniqueVessels());
 		Assert.assertEquals(87300, monthlyAggregationDto.getAvgDurationSec(), 0);
 		Assert.assertEquals(1210.4, monthlyAggregationDto.getSumOfLength(), 0);
 	}

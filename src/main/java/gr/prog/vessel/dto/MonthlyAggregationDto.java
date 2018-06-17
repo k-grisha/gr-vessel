@@ -6,8 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class MonthlyAggregationDto {
-	private Integer totalArrivals;
-	private Integer uniqueVessels;
+	private Long totalArrivals;
+	private Long uniqueVessels;
 	private Double avgDurationSec;
 	private Double  sumOfLength;
 }

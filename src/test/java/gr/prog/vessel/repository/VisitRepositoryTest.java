@@ -1,7 +1,5 @@
 package gr.prog.vessel.repository;
 
-import gr.prog.vessel.dto.PortAggregationDto;
-import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.model.VesselVisit;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -37,14 +35,15 @@ public class VisitRepositoryTest {
 	public void maxTest() {
 //		entityManager.persistAndFlush(new VesselVisitBuilder().setLength(10.0).setImo(1111L).build());
 //		entityManager.persistAndFlush(new VesselVisitBuilder().setLength(15.0).setImo(1111L).build());
-		entityManager.persistAndFlush(new VesselVisitBuilder().setLength(17.0).setImo(1111L).build());
+		entityManager.persistAndFlush(new VesselVisitBuilder().setLength(17.0).setImo(2222L).build());
 		entityManager.persistAndFlush(new VesselVisitBuilder().setLength(3.0).setImo(1111L)
 				.setTimeFinished(Timestamp.valueOf(LocalDateTime.now().plusHours(40).plusMinutes(3000))).build());
 		entityManager.persistAndFlush(new VesselVisitBuilder().setLength(1000.0).setImo(1111L)
 				.setTimeFinished(Timestamp.valueOf(LocalDateTime.now().plusYears(1))).build());
 
 
-		List<Object[]> result = visitRepository.getPortAggregationBySql(2,
+
+		ArrivalsStatistic result = visitRepository.getArrivalStatistic(2,
 				Timestamp.valueOf(LocalDateTime.now().minusMonths(1)),
 				Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
 		System.out.println(result);

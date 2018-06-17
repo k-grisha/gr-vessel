@@ -3,6 +3,8 @@ package gr.prog.vessel.repository;
 import gr.prog.vessel.dto.PortAggregationDto;
 import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.model.VesselVisit;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -62,14 +64,21 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 			"AND time_started >= ?3 AND time_finished < ?4", nativeQuery = true)
 	List<Object[]> getVisitAggregationBySql(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime);
 
-	@Query("SELECT visit FROM VesselVisit visit WHERE " +
-			"visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeStarted < :toTime")
+	@Query("SELECT visit FROM VesselVisit visit " +
+			"WHERE visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeStarted < :toTime")
 	List<VesselVisit> findArrivalsByPortIdInPeriod(@Param("portId") Integer portId,
 												   @Param("fromTime") Timestamp fromTime,
 												   @Param("toTime") Timestamp toTime);
 
-//	@Query("SELECT AVG (v.length), MAX (v.length), MIN (v.length)  FROM VesselVisit v")
-//	Object findAvg();
+	@Query(value = "SELECT new gr.prog.vessel.repository.ArrivalsStatistic(COUNT(visit), COUNT (DISTINCT visit.imo)) " +
+			"FROM VesselVisit visit " +
+			"WHERE visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeStarted < :toTime")
+	ArrivalsStatistic getArrivalStatistic(@Param("portId") Integer portId,
+										  @Param("fromTime") Timestamp fromTime,
+										  @Param("toTime") Timestamp toTime);
+
+
+
 //
 
 //	@Query("SELECT COUNT(visit), COUNT (DISTINCT visit.imo), AVG (second(visit.timeFinished))  , SUM(visit.length) " +

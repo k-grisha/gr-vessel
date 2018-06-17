@@ -6,6 +6,7 @@ import gr.prog.vessel.dto.PortAggregationDto;
 import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.mapper.VesselVisitMapper;
 import gr.prog.vessel.model.VesselVisit;
+import gr.prog.vessel.repository.ArrivalsStatistic;
 import gr.prog.vessel.repository.VisitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,9 +100,8 @@ public class VesselService {
 				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
 				.average().orElse(0.0);
 		Double sumOfLength = visits.stream().mapToDouble(VesselVisit::getLength).sum();
-		List<VesselVisit> arrivals = visitRepository.findArrivalsByPortIdInPeriod(portId, from, to);
-		Integer uniqueArrivals = (int) arrivals.stream().filter(distinctByKey(VesselVisit::getImo)).count();
-		return new MonthlyAggregationDto(arrivals.size(), uniqueArrivals, avgDuration / 1000, sumOfLength);
+		ArrivalsStatistic arrivals = visitRepository.getArrivalStatistic(portId, from, to);
+		return new MonthlyAggregationDto(arrivals.total, arrivals.unique, avgDuration / 1000, sumOfLength);
 	}
 
 	private <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
