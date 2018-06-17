@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -35,16 +36,29 @@ public class VesselService {
 		return visits.stream().map(VesselVisitMapper.INSTANCE::map).collect(Collectors.toList());
 	}
 
-	public PortAggregationDto getPortAggregation(Integer portId, Timestamp fromTime, Timestamp toTime) {
+	public PortAggregationDto getPortAggregationByStream(Integer portId, Timestamp fromTime, Timestamp toTime) {
 		List<VesselVisit> visits = visitRepository.findVisitsByPortIdInPeriod(portId, fromTime, toTime);
 		Long uniqueVessels = visits.stream().filter(distinctByKey(VesselVisit::getImo)).count();
 		LongSummaryStatistics statistics = visits.stream()
-				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
+				.mapToLong(VesselVisit::getDurationSec)
 				.summaryStatistics();
 		return new PortAggregationDto(uniqueVessels,
-				statistics.getAverage() / 1000,
-				statistics.getMin() / 1000,
-				statistics.getMax() / 1000);
+				statistics.getAverage(),
+				statistics.getMin(),
+				statistics.getMax());
+	}
+
+	public PortAggregationDto getPortAggregationByJpql(Integer portId, Timestamp fromTime, Timestamp toTime) {
+		return visitRepository.getPortAggregationByJpql(portId, fromTime, toTime);
+	}
+
+	public PortAggregationDto getPortAggregationBySql(Integer portId, Timestamp fromTime, Timestamp toTime) {
+		Object[] result = visitRepository.getPortAggregationBySql(portId, fromTime, toTime).get(0);
+		return new PortAggregationDto(((BigInteger) result[0]).longValue(),
+				((BigDecimal) result[1]).doubleValue(),
+				((BigInteger) result[2]).longValue(),
+				((BigInteger) result[3]).longValue());
+
 	}
 
 	public VesselAggregationDto getVesselAggregationByStream(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
@@ -70,7 +84,7 @@ public class VesselService {
 	public VesselAggregationDto getVesselAggregationBySql(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
 		Object[] result = visitRepository.getVisitAggregationBySql(portId, imo, fromTime, toTime).get(0);
 		return new VesselAggregationDto(((BigInteger) result[0]).longValue(),
-				((BigInteger) result[1]).doubleValue(),
+				((BigDecimal) result[1]).doubleValue(),
 				((BigInteger) result[2]).longValue(),
 				((BigInteger) result[3]).longValue(),
 				(Date) result[4],

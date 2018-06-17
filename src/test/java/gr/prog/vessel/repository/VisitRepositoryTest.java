@@ -1,5 +1,6 @@
 package gr.prog.vessel.repository;
 
+import gr.prog.vessel.dto.PortAggregationDto;
 import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.model.VesselVisit;
 import lombok.Setter;
@@ -43,7 +44,7 @@ public class VisitRepositoryTest {
 				.setTimeFinished(Timestamp.valueOf(LocalDateTime.now().plusYears(1))).build());
 
 
-		List<Object[]> result = visitRepository.getVisitAggregationBySql(2, 1111L,
+		List<Object[]> result = visitRepository.getPortAggregationBySql(2,
 				Timestamp.valueOf(LocalDateTime.now().minusMonths(1)),
 				Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
 		System.out.println(result);

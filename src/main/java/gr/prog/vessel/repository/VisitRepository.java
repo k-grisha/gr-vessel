@@ -1,5 +1,6 @@
 package gr.prog.vessel.repository;
 
+import gr.prog.vessel.dto.PortAggregationDto;
 import gr.prog.vessel.dto.VesselAggregationDto;
 import gr.prog.vessel.model.VesselVisit;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +16,8 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 
 	List<VesselVisit> findAll();
 
-	@Query("SELECT visit FROM VesselVisit visit WHERE " +
-			"visit.portId = :portId AND visit.timeStarted < :timestamp AND visit.timeFinished > :timestamp")
+	@Query("SELECT visit FROM VesselVisit visit " +
+			"WHERE visit.portId = :portId AND :timestamp BETWEEN visit.timeStarted AND visit.timeFinished")
 	List<VesselVisit> findVisitsByPortIdAtTime(@Param("portId") Integer portId, @Param("timestamp") Timestamp timestamp);
 
 	@Query("SELECT visit FROM VesselVisit visit WHERE " +
@@ -25,6 +26,18 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 												 @Param("fromTime") Timestamp fromTime,
 												 @Param("toTime") Timestamp toTime);
 
+	@Query("SELECT new gr.prog.vessel.dto.PortAggregationDto( COUNT(DISTINCT visit.imo), AVG(visit.durationSec), MIN(visit.durationSec), MAX(visit.durationSec)) " +
+			"FROM VesselVisit visit " +
+			"WHERE visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeFinished < :toTime")
+	PortAggregationDto getPortAggregationByJpql(@Param("portId") Integer portId,
+												@Param("fromTime") Timestamp fromTime,
+												@Param("toTime") Timestamp toTime);
+
+	@Query(value = "SELECT COUNT(DISTINCT imo), AVG(duration_sec), MIN(duration_sec), MAX(duration_sec) " +
+			"FROM vessel_visit " +
+			"WHERE port_id = ?1 AND time_started >= ?2 AND time_finished < ?3", nativeQuery = true)
+	List<Object[]> getPortAggregationBySql(Integer portId, Timestamp fromTime, Timestamp toTime);
+
 	@Query("SELECT visit FROM VesselVisit visit WHERE " +
 			"visit.portId = :portId AND visit.imo = :imo AND " +
 			"visit.timeStarted >= :fromTime AND visit.timeFinished < :toTime")
@@ -32,14 +45,6 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 													@Param("imo") Long imo,
 													@Param("fromTime") Timestamp fromTime,
 													@Param("toTime") Timestamp toTime);
-
-	@Query("SELECT visit FROM VesselVisit visit WHERE " +
-			"visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeStarted < :toTime")
-//	@Query(value = "SELECT * FROM vessel_visit WHERE port_id = ?1 AND  " +
-//			"time_started >= ?2 AND time_started < ?3", nativeQuery = true)
-	List<VesselVisit> findArrivalsByPortIdInPeriod(@Param("portId") Integer portId,
-												   @Param("fromTime") Timestamp fromTime,
-												   @Param("toTime") Timestamp toTime);
 
 	@Query("SELECT new gr.prog.vessel.dto.VesselAggregationDto(" +
 			"COUNT(visit), AVG(visit.durationSec), MIN(visit.durationSec), MAX (visit.durationSec), MIN(visit.timeStarted), MAX(visit.timeStarted)) " +
@@ -51,15 +56,17 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 												   @Param("fromTime") Timestamp fromTime,
 												   @Param("toTime") Timestamp toTime);
 
-	@Query(value = "SELECT COUNT(*), AVG(duration_sec), MIN(duration_sec), MAX (duration_sec), MIN(time_started), MAX(time_started) " +
+	@Query(value = "SELECT COUNT(*), AVG(duration_sec), MIN(duration_sec), MAX (duration_sec), MIN(time_started) as min2, MAX(time_started) max2 " +
 			"FROM vessel_visit " +
 			"WHERE port_id = ?1 AND imo = ?2 " +
 			"AND time_started >= ?3 AND time_finished < ?4", nativeQuery = true)
-	List<Object[]> getVisitAggregationBySql(@Param("portId") Integer portId,
-											@Param("imo") Long imo,
-											@Param("fromTime") Timestamp fromTime,
-											@Param("toTime") Timestamp toTime);
+	List<Object[]> getVisitAggregationBySql(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime);
 
+	@Query("SELECT visit FROM VesselVisit visit WHERE " +
+			"visit.portId = :portId AND visit.timeStarted >= :fromTime AND visit.timeStarted < :toTime")
+	List<VesselVisit> findArrivalsByPortIdInPeriod(@Param("portId") Integer portId,
+												   @Param("fromTime") Timestamp fromTime,
+												   @Param("toTime") Timestamp toTime);
 
 //	@Query("SELECT AVG (v.length), MAX (v.length), MIN (v.length)  FROM VesselVisit v")
 //	Object findAvg();

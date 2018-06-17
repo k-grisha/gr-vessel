@@ -24,8 +24,17 @@ public class VesselsController {
 	@GetMapping(path = "/{portId}/aggregation")
 	public PortAggregationDto getPortAggregation(@PathVariable Integer portId,
 												 @RequestParam Timestamp s,
-												 @RequestParam Timestamp e) {
-		return vesselService.getPortAggregation(portId, s, e);
+												 @RequestParam Timestamp e,
+												 @RequestParam(defaultValue = "STREAM") JpaMethod jpaMethod) {
+		switch (jpaMethod) {
+			case STREAM:
+				return vesselService.getPortAggregationByStream(portId, s, e);
+			case JPQL:
+				return vesselService.getPortAggregationByJpql(portId, s, e);
+			case SQL:
+				return vesselService.getPortAggregationBySql(portId, s, e);
+		}
+		throw new RuntimeException("Unknown JpaMethod method");
 	}
 
 	@GetMapping(path = "/{portId}/vessel/{imo}/aggregation")
