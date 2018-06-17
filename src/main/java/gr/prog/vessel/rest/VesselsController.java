@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.List;
 
+//todo convert all datatime to UTC before request Zone gr.prog.vessel.Utils.convertToUTC(java.time.LocalDateTime, java.time.ZoneId)
+
 @RestController
 @RequestMapping("/rest/port")
 public class VesselsController {

@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
@@ -33,16 +34,20 @@ public class ParseCSVTest {
 
 	@Test
 	public void base() throws ParseException {
+		System.out.println(TimeZone.getAvailableIDs());
+
 		String date = "2015-01-04 11:31:39.055";
 		LocalDateTime localDate = LocalDateTime.parse(date, formatter);
-		Timestamp timestamp = Timestamp.valueOf(localDate);
-		ZonedDateTime zoned = ZonedDateTime.of(localDate, ZoneId.of("Europe/Moscow"));
+
+		ZonedDateTime zoned = ZonedDateTime.of(LocalDateTime.parse(date, formatter), ZoneId.of("Europe/Berlin"));
 		LocalDateTime localDateUTC = zoned.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
 
+		Timestamp timestamp = Timestamp.valueOf(localDate);
+		Timestamp timestampUTC = Timestamp.valueOf(localDateUTC);
 //		1420360299055
-		System.out.println(timestamp);
-		System.out.println(localDate);
-		System.out.println(localDateUTC);
+		System.out.println(timestamp.getTime());
+		System.out.println(timestampUTC.getTime());
+//		System.out.println(localDateUTC);
 	}
 
 	@Test

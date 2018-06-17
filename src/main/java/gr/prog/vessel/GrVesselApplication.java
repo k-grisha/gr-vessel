@@ -15,7 +15,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static gr.prog.vessel.Utils.convertToUTC;
 
 @SpringBootApplication
 @EnableTransactionManagement
@@ -50,6 +54,7 @@ public class GrVesselApplication {
 				vesselVisit.setImo(Long.parseLong(column[1]));
 				vesselVisit.setLength(Double.parseDouble(column[2]));
 				vesselVisit.setPortId(Integer.parseInt(column[3]));
+				//todo convert datatime to UTC Zone gr.prog.vessel.Utils.convertToUTC(java.time.LocalDateTime, java.time.ZoneId)
 				vesselVisit.setTimeStarted(Timestamp.valueOf(LocalDateTime.parse(column[4], formatter)));
 				vesselVisit.setTimeFinished(Timestamp.valueOf(LocalDateTime.parse(column[5], formatter)));
 				visitRepository.save(vesselVisit);
