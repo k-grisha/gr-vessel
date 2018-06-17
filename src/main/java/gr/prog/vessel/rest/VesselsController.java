@@ -1,9 +1,6 @@
 package gr.prog.vessel.rest;
 
-import gr.prog.vessel.dto.GuestDto;
-import gr.prog.vessel.dto.MonthlyAggregationDto;
-import gr.prog.vessel.dto.PortAggregationDto;
-import gr.prog.vessel.dto.VesselAggregationDto;
+import gr.prog.vessel.dto.*;
 import gr.prog.vessel.service.VesselService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +32,17 @@ public class VesselsController {
 	public VesselAggregationDto getVesselAggregation(@PathVariable Integer portId,
 													 @PathVariable Long imo,
 													 @RequestParam Timestamp s,
-													 @RequestParam Timestamp e) {
-		return vesselService.getVesselAggregation(portId, imo, s, e);
+													 @RequestParam Timestamp e,
+													 @RequestParam(defaultValue = "STREAM") JpaMethod jpaMethod) {
+		switch (jpaMethod) {
+			case STREAM:
+				return vesselService.getVesselAggregationByStream(portId, imo, s, e);
+			case JPQL:
+				return vesselService.getVesselAggregationByJpql(portId, imo, s, e);
+			case SQL:
+				return vesselService.getVesselAggregationBySql(portId, imo, s, e);
+		}
+		throw new RuntimeException("Unknown JpaMethod method");
 	}
 
 	@GetMapping(path = "/{portId}/monthAggregation")
@@ -45,4 +51,5 @@ public class VesselsController {
 													 @RequestParam int m) {
 		return vesselService.getMonthAggregation(portId, y, m);
 	}
+
 }

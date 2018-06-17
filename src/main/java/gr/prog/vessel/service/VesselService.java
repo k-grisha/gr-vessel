@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.LongSummaryStatistics;
 import java.util.Map;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 public class VesselService {
 
 	@Autowired
-	VisitRepository visitRepository;
+	private VisitRepository visitRepository;
 
 	public List<GuestDto> getVisitors(Integer portId, Timestamp timestamp) {
 		List<VesselVisit> visits = visitRepository.findVisitsByPortIdAtTime(portId, timestamp);
@@ -45,19 +47,34 @@ public class VesselService {
 				statistics.getMax() / 1000);
 	}
 
-	public VesselAggregationDto getVesselAggregation(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
+	public VesselAggregationDto getVesselAggregationByStream(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
 		List<VesselVisit> visits = visitRepository.findVisitsByPortIdImoInPeriod(portId, imo, fromTime, toTime);
 		LongSummaryStatistics timeInPortStatistics = visits.stream()
-				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
+				.mapToLong(VesselVisit::getDurationSec)
 				.summaryStatistics();
-		LongSummaryStatistics visitStatistics = visits.stream().mapToLong(visit -> visit.getTimeFinished().getTime())
+		LongSummaryStatistics startTimeStatistics = visits.stream()
+				.mapToLong(visit -> visit.getTimeStarted().getTime())
 				.summaryStatistics();
-		return new VesselAggregationDto(visits.size(),
-				timeInPortStatistics.getAverage() / 1000,
-				timeInPortStatistics.getMin() / 1000,
-				timeInPortStatistics.getMax() / 1000,
-				new Timestamp(visitStatistics.getMin()),
-				new Timestamp(visitStatistics.getMax()));
+		return new VesselAggregationDto((long) visits.size(),
+				timeInPortStatistics.getAverage(),
+				timeInPortStatistics.getMin(),
+				timeInPortStatistics.getMax(),
+				new Timestamp(startTimeStatistics.getMin()),
+				new Timestamp(startTimeStatistics.getMax()));
+	}
+
+	public VesselAggregationDto getVesselAggregationByJpql(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
+		return visitRepository.getVisitAggregationByJpql(portId, imo, fromTime, toTime);
+	}
+
+	public VesselAggregationDto getVesselAggregationBySql(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime) {
+		Object[] result = visitRepository.getVisitAggregationBySql(portId, imo, fromTime, toTime).get(0);
+		return new VesselAggregationDto(((BigInteger) result[0]).longValue(),
+				((BigInteger) result[1]).doubleValue(),
+				((BigInteger) result[2]).longValue(),
+				((BigInteger) result[3]).longValue(),
+				(Date) result[4],
+				(Date) result[5]);
 	}
 
 	public MonthlyAggregationDto getMonthAggregation(Integer portId, int year, int month) {
@@ -72,7 +89,6 @@ public class VesselService {
 		Integer uniqueArrivals = (int) arrivals.stream().filter(distinctByKey(VesselVisit::getImo)).count();
 		return new MonthlyAggregationDto(arrivals.size(), uniqueArrivals, avgDuration / 1000, sumOfLength);
 	}
-
 
 	private <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 		Map<Object, Boolean> seen = new ConcurrentHashMap<>();

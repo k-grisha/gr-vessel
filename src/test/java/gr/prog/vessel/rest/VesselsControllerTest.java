@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import gr.prog.vessel.GrVesselApplication;
-import gr.prog.vessel.dto.GuestDto;
-import gr.prog.vessel.dto.MonthlyAggregationDto;
-import gr.prog.vessel.dto.PortAggregationDto;
-import gr.prog.vessel.dto.VesselAggregationDto;
+import gr.prog.vessel.dto.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,9 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class VesselsControllerTest {
 
 	@Autowired
-	protected ObjectMapper objectMapper;
+	private ObjectMapper objectMapper;
 
-	protected MockMvc mockMvc;
+	private MockMvc mockMvc;
 
 	@Autowired
 	public void setContext(WebApplicationContext context) {
@@ -91,15 +88,30 @@ public class VesselsControllerTest {
 	}
 
 	@Test
-	public void getVesselAggregation_success() throws Exception {
+	public void getVesselAggregation_stream_success() throws Exception {
+		getVesselAggregation_success("STREAM");
+	}
+
+	@Test
+	public void getVesselAggregation_jpql_success() throws Exception {
+		getVesselAggregation_success("JPQL");
+	}
+
+	@Test
+	public void getVesselAggregation_sql_success() throws Exception {
+		getVesselAggregation_success("SQL");
+	}
+
+	public void getVesselAggregation_success(String jpaMethod) throws Exception {
 		String responseJson = mockMvc.perform(get("/rest/port/{portId}/vessel/{imo}/aggregation", 2, 11111)
 				.param("s", "2014-12-01 07:07:00")
-				.param("e", "2015-02-01 07:07:00"))
+				.param("e", "2015-02-01 07:07:00")
+				.param("jpaMethod", jpaMethod))
 				.andDo(MockMvcResultHandlers.print())
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 		VesselAggregationDto vesselAggregationDto = objectMapper.readValue(responseJson, VesselAggregationDto.class);
-		Assert.assertEquals(2, (int) vesselAggregationDto.getPortVisits());
+		Assert.assertEquals(2L, (long) vesselAggregationDto.getPortVisits());
 		Assert.assertEquals(172800, (long) vesselAggregationDto.getMinInPortSec());
 		Assert.assertEquals(259200, (long) vesselAggregationDto.getMaxInPortSec());
 		Assert.assertEquals(216000, vesselAggregationDto.getAvgInPortSec(), 0);
@@ -109,7 +121,8 @@ public class VesselsControllerTest {
 	public void getMonthAggregation_success() throws Exception {
 		String responseJson = mockMvc.perform(get("/rest/port/{portId}/monthAggregation", 2)
 				.param("y", "2015")
-				.param("m", "1"))
+				.param("m", "1")
+				.param("jpaMethod", JpaMethod.JPQL.name()))
 				.andDo(MockMvcResultHandlers.print())
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();

@@ -27,7 +27,7 @@ public class GrVesselApplication {
 
 
 	@Bean
-	@Profile("!test")
+	@Profile("!Test")
 	public CommandLineRunner initDB(VisitRepository visitRepository) {
 		return (args) -> {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");

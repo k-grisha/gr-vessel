@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
     <!-- 3 days -->
-    <vessel_visit id="-10" name="PUELO" imo="11111" length="301.1" port_id="2"
+    <vessel_visit id="-10" name="PUELO" imo="11111" length="301.1" port_id="2" duration_sec="259200"
                   time_started="2014-12-10 00:00:00" time_finished="2014-12-13 00:00:00" version="0"/>
     <!-- 2 days -->
-    <vessel_visit id="-1" name="PUELO" imo="11111" length="301.1" port_id="2"
+    <vessel_visit id="-1" name="PUELO" imo="11111" length="301.1" port_id="2" duration_sec="172800"
                  time_started="2015-01-01 00:00:00" time_finished="2015-01-03 00:00:00" version="0"/>
     <!-- 1 day -->
-    <vessel_visit id="-2" name="ESSEN" imo="22222" length="302.1" port_id="2"
+    <vessel_visit id="-2" name="ESSEN" imo="22222" length="302.1" port_id="2" duration_sec="86400"
                   time_started="2015-01-01 00:00:00" time_finished="2015-01-02 00:00:00" version="0"/>
     <!-- 1 day -->
-    <vessel_visit id="-3" name="EVER" imo="33333" length="303.1" port_id="2"
+    <vessel_visit id="-3" name="EVER" imo="33333" length="303.1" port_id="2" duration_sec="86400"
                   time_started="2015-01-06 00:00:00" time_finished="2015-01-07 00:00:00" version="0"/>
     <!-- 1 hour -->
-    <vessel_visit id="-4" name="MAERSK" imo="44444" length="304.1" port_id="2"
+    <vessel_visit id="-4" name="MAERSK" imo="44444" length="304.1" port_id="2" duration_sec="3600"
                   time_started="2015-01-03 00:00:00" time_finished="2015-01-03 01:00:00" version="0"/>
 
-    <vessel_visit id="-5" name="BREEZE" imo="55555" length="305.1" port_id="1"
+    <vessel_visit id="-5" name="BREEZE" imo="55555" length="305.1" port_id="1" duration_sec="172800"
                   time_started="2015-01-01 00:00:00" time_finished="2015-01-03 00:00:00" version="0"/>
 </dataset>

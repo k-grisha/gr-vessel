@@ -18,4 +18,10 @@ public class VesselVisit extends AbstractModel {
 	private Integer portId;
 	private Timestamp timeStarted;
 	private Timestamp timeFinished;
+	private Long durationSec;
+
+	public void setTimeFinished(Timestamp timeFinished) {
+		this.timeFinished = timeFinished;
+		this.durationSec = (timeFinished.getTime() - timeStarted.getTime()) / 1000;
+	}
 }

@@ -20,14 +20,14 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 import javax.sql.DataSource;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = GrVesselApplication.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class,
-		DirtiesContextTestExecutionListener.class,
-		TransactionalTestExecutionListener.class,
-		DbUnitTestExecutionListener.class})
-@DatabaseSetup("/sampleData.xml")
-@ActiveProfiles(profiles = "test")
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringBootTest(classes = GrVesselApplication.class)
+//@TestExecutionListeners({DependencyInjectionTestExecutionListener.class,
+//		DirtiesContextTestExecutionListener.class,
+//		TransactionalTestExecutionListener.class,
+//		DbUnitTestExecutionListener.class})
+//@DatabaseSetup("/sampleData.xml")
+//@ActiveProfiles(profiles = "test")
 public class BaseTest {
 
 	@Autowired
