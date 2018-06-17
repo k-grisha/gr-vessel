@@ -6,7 +6,6 @@ import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import gr.prog.vessel.GrVesselApplication;
 import gr.prog.vessel.dto.*;
-import gr.prog.vessel.repository.VisitRepository;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,8 +23,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,8 +39,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class VesselsControllerTest {
 
 	@Autowired
-	private VisitRepository visitRepository;
-	@Autowired
 	private ObjectMapper objectMapper;
 
 	private MockMvc mockMvc;
@@ -55,11 +50,6 @@ public class VesselsControllerTest {
 
 	@Test
 	public void getVisitors_success() throws Exception {
-		Object result = visitRepository.getArrivalStatistic(2,
-				Timestamp.valueOf(LocalDateTime.now().minusMonths(1)),
-				Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
-		System.out.println(result);
-
 		// Port 2
 		String responseJson = mockMvc.perform(get("/rest/port/{portId}/guests", 2)
 				.param("t", "2015-01-02 07:07:00"))
@@ -92,7 +82,7 @@ public class VesselsControllerTest {
 		getPortAggregation_success("JPQL");
 	}
 
-	// AVG() and COUNT() in native SQL return different types with different DB
+	// AVG() and COUNT() in native SQL return different types with different DB (H2/Postgres)
 	@Ignore
 	public void getPortAggregation_sql_success() throws Exception {
 		getPortAggregation_success("SQL");
@@ -123,7 +113,7 @@ public class VesselsControllerTest {
 		getVesselAggregation_success("JPQL");
 	}
 
-	// AVG() and COUNT() in native SQL return different types with different DB
+	// AVG() and COUNT() in native SQL return different types with different DB (H2/Postgres)
 	@Ignore
 	public void getVesselAggregation_sql_success() throws Exception {
 		getVesselAggregation_success("SQL");

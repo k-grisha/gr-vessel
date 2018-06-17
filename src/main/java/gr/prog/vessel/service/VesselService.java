@@ -96,12 +96,10 @@ public class VesselService {
 		Timestamp from = Timestamp.valueOf(LocalDate.of(year, month, 1).atStartOfDay());
 		Timestamp to = Timestamp.valueOf(LocalDate.of(year, month + 1, 1).atStartOfDay());
 		List<VesselVisit> visits = visitRepository.findVisitsByPortIdInPeriod(portId, from, to);
-		Double avgDuration = visits.stream()
-				.mapToLong(visit -> visit.getTimeFinished().getTime() - visit.getTimeStarted().getTime())
-				.average().orElse(0.0);
+		Double avgDuration = visits.stream().mapToLong(VesselVisit::getDurationSec).average().orElse(0.0);
 		Double sumOfLength = visits.stream().mapToDouble(VesselVisit::getLength).sum();
 		ArrivalsStatistic arrivals = visitRepository.getArrivalStatistic(portId, from, to);
-		return new MonthlyAggregationDto(arrivals.total, arrivals.unique, avgDuration / 1000, sumOfLength);
+		return new MonthlyAggregationDto(arrivals.total, arrivals.unique, avgDuration, sumOfLength);
 	}
 
 	private <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

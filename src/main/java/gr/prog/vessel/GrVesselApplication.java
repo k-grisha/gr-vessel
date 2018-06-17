@@ -25,34 +25,39 @@ public class GrVesselApplication {
 		SpringApplication.run(GrVesselApplication.class, args);
 	}
 
-
 	@Bean
 	@Profile("!Test")
 	public CommandLineRunner initDB(VisitRepository visitRepository) {
 		return (args) -> {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
-			String csvFile = "port_visits.csv";
-			InputStream in = this.getClass().getClassLoader().getResourceAsStream(csvFile);
-			String line;
-			int counter = 0;
-			try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-				br.readLine();
-				while ((line = br.readLine()) != null) {
-					String[] column = line.split(",");
-					VesselVisit vesselVisit = new VesselVisit();
-					vesselVisit.setName(column[0]);
-					vesselVisit.setImo(Long.parseLong(column[1]));
-					vesselVisit.setLength(Double.parseDouble(column[2]));
-					vesselVisit.setPortId(Integer.parseInt(column[3]));
-					vesselVisit.setTimeStarted(Timestamp.valueOf(LocalDateTime.parse(column[4], formatter)));
-					vesselVisit.setTimeFinished(Timestamp.valueOf(LocalDateTime.parse(column[5], formatter)));
-					visitRepository.save(vesselVisit);
-					counter++;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			System.out.println("==== " + counter + " visits added ====");
+			parseCSV(visitRepository, "port_visits.csv");
 		};
+	}
+
+	/**
+	 * Parse CSV file to DB
+	 */
+	public static void parseCSV(VisitRepository visitRepository, String csvFile) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
+		InputStream in = visitRepository.getClass().getClassLoader().getResourceAsStream(csvFile);
+		String line;
+		int counter = 0;
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+			br.readLine();
+			while ((line = br.readLine()) != null) {
+				String[] column = line.split(",");
+				VesselVisit vesselVisit = new VesselVisit();
+				vesselVisit.setName(column[0]);
+				vesselVisit.setImo(Long.parseLong(column[1]));
+				vesselVisit.setLength(Double.parseDouble(column[2]));
+				vesselVisit.setPortId(Integer.parseInt(column[3]));
+				vesselVisit.setTimeStarted(Timestamp.valueOf(LocalDateTime.parse(column[4], formatter)));
+				vesselVisit.setTimeFinished(Timestamp.valueOf(LocalDateTime.parse(column[5], formatter)));
+				visitRepository.save(vesselVisit);
+				counter++;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("==== " + counter + " visits added ====");
 	}
 }
