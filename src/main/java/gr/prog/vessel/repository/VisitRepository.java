@@ -52,7 +52,7 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 	List<Object[]> getPortAggregationBySql(Integer portId, Timestamp fromTime, Timestamp toTime);
 
 	/**
-	 * Task C for stream
+	 * Task C by java stream
 	 */
 	@Query("SELECT visit FROM VesselVisit visit WHERE " +
 			"visit.portId = :portId AND visit.imo = :imo AND " +
@@ -75,7 +75,7 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 												   @Param("fromTime") Timestamp fromTime,
 												   @Param("toTime") Timestamp toTime);
 	/**
-	 * Task B by SQL
+	 * Task C by SQL
 	 */
 	@Query(value = "SELECT COUNT(*), AVG(duration_sec), MIN(duration_sec), MAX (duration_sec), MIN(time_started) as min2, MAX(time_started) max2 " +
 			"FROM vessel_visit " +
@@ -84,7 +84,7 @@ public interface VisitRepository extends CrudRepository<VesselVisit, Long> {
 	List<Object[]> getVisitAggregationBySql(Integer portId, Long imo, Timestamp fromTime, Timestamp toTime);
 
 	/**
-	 * Task D by SQL
+	 * Task D
 	 */
 	@Query(value = "SELECT new gr.prog.vessel.repository.ArrivalsStatistic(COUNT(visit), COUNT (DISTINCT visit.imo)) " +
 			"FROM VesselVisit visit " +

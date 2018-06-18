@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import static gr.prog.vessel.Utils.convertToUTC;
 
 @SpringBootApplication
 @EnableTransactionManagement
+@EnableSwagger2
 public class GrVesselApplication {
 
 	public static void main(String[] args) {
